@@ -1,0 +1,88 @@
+- hosts: "*"
+  become: yes
+
+  pre_tasks:
+    - name: Checking file system disk space usage
+      shell: df -h
+      register: disk_space_usage
+
+    - name: Showing file system disk space usage
+      debug:
+        msg: "{{ disk_space_usage.stdout_lines }}"
+
+    - name: Checking packages that are no longer needed
+      command: apt -y -s autoremove
+      register: could_autoremove_list
+
+    - name: Showing packages that are no longer needed
+      debug:
+        msg: "{{ could_autoremove_list.stdout_lines }}"
+
+    - name: Question
+      pause:
+        prompt: Press enter to confirm deleting no longer needed packages or Ctrl+c to cancel
+      register: confirm_delete
+
+    - name: Deleting packages that are no longer needed
+      command: apt -y autoremove
+      register: could_autoremove_list
+
+    - name: Apt repo update
+      apt:
+       update_cache: yes
+
+    - name: Apt list upgradable
+      command: apt list --upgradable
+      register: upgradable_list
+
+    - name: Showing upgradable list
+      debug:
+        msg: "{{ upgradable_list.stdout_lines }}"
+
+    - debug: var=updates.stdout_lines
+
+    - name: Question
+      pause:
+        prompt: Press enter to confirm upgrade packages or Ctrl+c to cancel
+      register: confirm_delete
+
+  tasks:
+    - name: Apt upgrade
+      apt:
+        update_cache: yes
+        upgrade: 'yes'
+
+    - name: Checking file system disk space usage after update
+      shell: df -h
+      register: check_storage_space_after
+
+    - name: Showing file system disk space usage after update
+      debug:
+        msg: "{{ check_storage_space_after.stdout_lines }}"
+
+    - name: Checking if server reqires reboot
+      register: reboot_required_file
+      stat: path=/var/run/reboot-required get_md5=no
+
+    - name: Question
+      pause:
+        prompt: Press enter to confirm server reboot or Ctrl+c to cancel
+      register: confirm_delete
+
+    - name: Reboot if kernel was updated
+      reboot:
+        msg: "Reboot initiated by Ansible for kernel updates"
+        connect_timeout: 5
+        reboot_timeout: 300
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: uptime
+      when: reboot_required_file.stat.exists
+
+    - name: Apt list upgradable after update and upgrade
+      command: apt list --upgradable
+      register: upgradable_list_after
+
+    - name: Showing upgradable list after update and upgrade
+      debug:
+        msg: "{{ upgradable_list_after.stdout_lines }}"
