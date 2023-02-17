@@ -1,0 +1,21 @@
+services:
+  ubu14:
+    build:
+      context: ./.
+      dockerfile: Dockerfile14
+  ubu16:
+    build:
+      context: ./.
+      dockerfile: Dockerfile16
+  ubu18:
+    build:
+      context: ./.
+      dockerfile: Dockerfile18
+  ubu20:
+    build:
+      context: ./.
+      dockerfile: Dockerfile20
+  ubu22:
+    build:
+      context: ./.
+      dockerfile: Dockerfile22

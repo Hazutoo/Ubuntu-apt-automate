@@ -1,0 +1,30 @@
+Server=127.0.0.1
+ServerActive=127.0.0.1
+
+to jest repo dla 20
+wget https://repo.zabbix.com/zabbix/5.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_5.0-1%2Bfocal_all.deb; dpkg -i zabbix-release_5.0-1+focal_all.deb
+
+to jest dla 18
+wget https://repo.zabbix.com/zabbix/5.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_5.0-1%2Bbionic_all.deb
+dpkg -i zabbix-release_5.0-1+bionic_all.deb
+apt install zabbix-agent2
+
+---
+- hosts: localhost
+  gather_facts: yes
+  become: false
+  tasks:
+  - name: Distribution version
+    debug: msg="{{ ansible_distribution_version}}"
+
+
+/docker_ubu-ubu20-1 - 172.25.0.6
+/docker_ubu-ubu14-1 - 172.25.0.5
+/docker_ubu-ubu18-1 - 172.25.0.4
+/docker_ubu-ubu16-1 - 172.25.0.3
+/docker_ubu-ubu22-1 - 172.25.0.2
+
+tasks:
+  - name: instaluj jesli ubuntu 20
+    ansible.builtin.command: wget https://repo.zabbix.com/zabbix/5.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_5.0-1%2Bfocal_all.deb; dpkg -i zabbix-release_5.0-1+focal_all.deb
+    when: ansible_facts['ansible_distribution_version'] == "20.04"

@@ -1,0 +1,17 @@
+FROM ubuntu:16.04
+
+RUN apt-get update -y && apt-get install -y ssh sudo
+
+RUN wget --no-check-certificate https://repo.zabbix.com/zabbix/5.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_5.0-1%2Bxenial_all.deb
+RUN dpkg -i zabbix-release_5.0-1+xenial_all.deb
+RUN apt-get -y update
+RUN apt-get -y install zabbix-agent
+RUN service zabbix-agent start
+
+RUN useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1000 test 
+
+RUN  echo 'test:test' | chpasswd
+
+RUN service ssh start
+
+CMD ["/usr/sbin/sshd","-D"]
